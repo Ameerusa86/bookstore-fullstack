@@ -15,7 +15,6 @@ export const signInWithCredentials = async (
   params: Pick<AuthCredentials, "email" | "password">
 ) => {
   const { email, password } = params;
-
   const ip = (await headers()).get("x-forwarded-for") || "127.0.0.1";
   const { success } = await ratelimit.limit(ip);
 
@@ -41,7 +40,6 @@ export const signInWithCredentials = async (
 
 export const register = async (params: AuthCredentials) => {
   const { fullName, email, universityId, password, universityCard } = params;
-
   const ip = (await headers()).get("x-forwarded-for") || "127.0.0.1";
   const { success } = await ratelimit.limit(ip);
 

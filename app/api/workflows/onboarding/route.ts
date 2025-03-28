@@ -1,14 +1,20 @@
 import { serve } from "@upstash/workflow/nextjs";
+import { sendEmail } from "@/lib/workflow";
 
 type InitialData = {
   email: string;
+  fullName: string;
 };
 
 export const { POST } = serve<InitialData>(async (context) => {
-  const { email } = context.requestPayload;
+  const { email, fullName } = context.requestPayload;
 
   await context.run("new-signup", async () => {
-    await sendEmail("Welcome to the Bookwise", email);
+    await sendEmail({
+      email,
+      subject: "Welcome to Bookwise!",
+      message: `<p>Hi ${fullName},</p><p>Thanks for signing up for Bookwise! 📚</p>`,
+    });
   });
 
   await context.sleep("wait-for-3-days", 60 * 60 * 24 * 3);
@@ -20,11 +26,19 @@ export const { POST } = serve<InitialData>(async (context) => {
 
     if (state === "non-active") {
       await context.run("send-email-non-active", async () => {
-        await sendEmail("Email to non-active users", email);
+        await sendEmail({
+          email,
+          subject: "We miss you at Bookwise",
+          message: `<p>Still haven't explored our collection? Come back soon!</p>`,
+        });
       });
     } else if (state === "active") {
       await context.run("send-email-active", async () => {
-        await sendEmail("Send newsletter to active users", email);
+        await sendEmail({
+          email,
+          subject: "Bookwise Monthly Newsletter",
+          message: `<p>Thanks for being an active reader. Here’s what’s new!</p>`,
+        });
       });
     }
 
@@ -32,14 +46,9 @@ export const { POST } = serve<InitialData>(async (context) => {
   }
 });
 
-async function sendEmail(message: string, email: string) {
-  // Implement email sending logic here
-  console.log(`Sending ${message} email to ${email}`);
-}
-
 type UserState = "non-active" | "active";
 
 const getUserState = async (): Promise<UserState> => {
-  // Implement user state logic here
+  // Replace with real logic later
   return "non-active";
 };
