@@ -1,5 +1,5 @@
 import { Client as WorkflowClient } from "@upstash/workflow";
-import { Client as QStashClient, resend } from "@upstash/qstash";
+import { Client as QStashClient } from "@upstash/qstash";
 import config from "@/lib/config";
 
 export const workflowClient = new WorkflowClient({
@@ -21,12 +21,8 @@ export const sendEmail = async ({
   message: string;
 }) => {
   await qstashClient.publishJSON({
-    api: {
-      name: "email",
-      provider: resend({ token: config.env.resendToken }),
-    },
+    url: `${config.env.prodApiEndpoint}/api/workflows/onboarding`, // ✅ your handler for Mailjet email
     body: {
-      from: "Bookwise <ameer.hasan.dev@gmail.com>",
       to: [email],
       subject,
       html: message,
